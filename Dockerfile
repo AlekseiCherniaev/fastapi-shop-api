@@ -1,9 +1,13 @@
 FROM python:3.12-slim
 
-RUN pip install poetry
+WORKDIR /code
 
-COPY . .
+RUN pip install --no-cache-dir poetry
 
-RUN poetry install
+COPY ./pyproject.toml ./poetry.lock* /code/
 
-ENTRYPOINT ["poetry", "run", "python", "main.py"]
+RUN poetry install --no-root --no-dev
+
+COPY . /code/
+
+RUN chmod +x /code/start.sh

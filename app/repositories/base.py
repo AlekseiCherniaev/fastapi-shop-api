@@ -9,7 +9,7 @@ from app.domain.schemas.token import Token
 from app.domain.schemas.user import User, UserUpdatePartial, UserCreate, CurrentUser
 
 
-class BaseRepo(ABC):
+class BaseUserRepo(ABC):
 
     @abstractmethod
     async def create_user(self, user: UserCreate, session: AsyncSession) -> User:

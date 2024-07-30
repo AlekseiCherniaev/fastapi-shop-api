@@ -1,6 +1,4 @@
 import uuid
-import datetime
-from typing import Optional
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -9,9 +7,8 @@ class UserBase(BaseModel):
     name: str
     surname: str
     username: str
-    phone_number: Optional[str] = Field(None, max_length=20)
     email: EmailStr
-    image_path: Optional[str] = Field(None, max_length=128)
+    image_path: str | None = Field(None, max_length=128)
 
 
 class UserCreate(UserBase):
@@ -23,22 +20,13 @@ class UserUpdatePartial(UserBase):
     surname: str | None = None
     username: str | None = None
     password: str | None = None
-    phone_number: str | None = None
     email: EmailStr | None = None
-    group_id: int | None = None
-    image_path: str | None = None
+    image_path: str | None = Field(None, max_length=128)
 
 
 class User(UserBase):
     id: uuid.UUID = Field(default_factory=uuid.uuid4)
     role_id: int
-    group_id: int | None = None
-    is_blocked: bool = False
-    active: bool = True
+    is_blocked: bool
+    is_active: bool
 
-
-class CurrentUser(User):
-    iat: datetime = None
-
-    class Config:
-        from_attributes = True

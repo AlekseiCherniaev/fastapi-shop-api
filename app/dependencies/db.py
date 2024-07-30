@@ -1,3 +1,4 @@
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker, AsyncSession
 from app.config.config import settings
 
@@ -15,3 +16,4 @@ class Database:
 
 
 db = Database(url=settings.get_db_url(), echo=True)
+db_session: AsyncSession = Depends(db.session_dependency)

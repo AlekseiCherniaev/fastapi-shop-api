@@ -8,7 +8,7 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    db_echo: bool = False
+    DB_ECHO: bool = False
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DB: str

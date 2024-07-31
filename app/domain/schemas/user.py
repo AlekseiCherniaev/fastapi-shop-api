@@ -1,4 +1,5 @@
 import uuid
+from datetime import datetime
 
 from pydantic import BaseModel, EmailStr, Field
 
@@ -30,3 +31,9 @@ class User(UserBase):
     is_blocked: bool
     is_active: bool
 
+
+class CurrentUser(UserBase):
+    iat: datetime = None
+
+    class Config:
+        from_attributes = True

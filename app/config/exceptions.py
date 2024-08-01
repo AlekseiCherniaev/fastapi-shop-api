@@ -22,3 +22,18 @@ class UserAlreadyExistsException(BException):
 class UserNotFoundException(BException):
     status_code = status.HTTP_404_NOT_FOUND
     detail = "User not found"
+
+
+class InvalidTokenException(BException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Invalid token"
+
+
+class WrongPasswordException(BException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Wrong password"
+
+
+class UserBlockedException(BException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "User blocked"

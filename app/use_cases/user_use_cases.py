@@ -5,6 +5,7 @@ from sqlalchemy import select, Result
 from sqlalchemy.sql.expression import or_
 
 from app.config.exceptions import UserAlreadyExistsException, PasswordNotValidException, UserNotFoundException
+from app.dependencies.user_dependencies import user_update_partial
 from app.dependencies.utils import password_check_complexity, hash_password
 from app.domain.models import User, Role
 from app.config.logger import logger
@@ -67,35 +68,14 @@ class UserUseCases:
         except Exception as e:
             logger.error(f"Error creating user: {str(e)}")
 
+    # TODO fix when change username new token generation
     async def update_partial_user(self, user_id: UUID, user_update: UserUpdatePartial, session: AsyncSession) -> User:
         try:
             user = await self.get_user_by_id(user_id=user_id, session=session)
             if not user:
                 raise UserNotFoundException
 
-            if user_update.username and user_update.username != user.username:
-                statement = select(User).where(User.username == user_update.username)
-                check_user = (await session.execute(statement)).scalar_one_or_none()
-                if check_user:
-                    raise UserAlreadyExistsException
-
-            if user_update.username and user_update.email != user.email:
-                statement = select(User).where(User.email == user_update.email)
-                check_user = (await session.execute(statement)).scalar_one_or_none()
-                if check_user:
-                    raise UserAlreadyExistsException
-
-            user_data = user_update.model_dump(exclude_unset=True)
-            if user_data.get("password"):
-                if not password_check_complexity(user_data["password"]):
-                    raise PasswordNotValidException
-                user_data["password"] = hash_password(user_data["password"])
-
-            for key, value in user_data.items():
-                if user_data.get(key):
-                    setattr(user, key, value)
-            await session.commit()
-            return user
+            return await user_update_partial(user=user, user_update=user_update, session=session)
 
         except UserNotFoundException as e:
             logger.error(f"User not found: {str(e)}")

@@ -1,3 +1,4 @@
+from typing import Annotated
 from uuid import UUID
 
 from fastapi import APIRouter, Depends
@@ -12,8 +13,8 @@ router = APIRouter(tags=["users"], prefix="/internal/users")
 
 @router.get("/")
 async def get_users(
-        session: AsyncSession = db_session,
-        user_repo: UserCrudRepo = Depends(),
+        session: Annotated[AsyncSession, db_session],
+        user_repo: Annotated[UserCrudRepo, Depends()],
 ) -> list[User]:
     return await user_repo.get_all_users(session=session)
 
@@ -21,8 +22,8 @@ async def get_users(
 @router.get("/user/")
 async def get_user(
         user_id: UUID,
-        session: AsyncSession = db_session,
-        user_repo: UserCrudRepo = Depends(),
+        session: Annotated[AsyncSession, db_session],
+        user_repo: Annotated[UserCrudRepo, Depends()],
 ) -> User:
     return await user_repo.get_user(user_id=user_id, session=session)
 
@@ -30,8 +31,8 @@ async def get_user(
 @router.post("/user-create/")
 async def create_user(
         user_in: UserCreate,
-        session: AsyncSession = db_session,
-        user_repo: UserCrudRepo = Depends(),
+        session: Annotated[AsyncSession, db_session],
+        user_repo: Annotated[UserCrudRepo, Depends()],
 ) -> User:
     return await user_repo.create_user(user_in=user_in, session=session)
 
@@ -40,8 +41,8 @@ async def create_user(
 async def update_user(
         user_id: UUID,
         user_update: UserUpdatePartial,
-        session: AsyncSession = db_session,
-        user_repo: UserCrudRepo = Depends(),
+        session: Annotated[AsyncSession, db_session],
+        user_repo: Annotated[UserCrudRepo, Depends()],
 ) -> User:
     return await user_repo.update_partial_user(user_id=user_id, user_update=user_update, session=session)
 
@@ -49,7 +50,7 @@ async def update_user(
 @router.delete("/user-delete/")
 async def delete_user(
         user_id: UUID,
-        session: AsyncSession = db_session,
-        user_repo: UserCrudRepo = Depends(),
+        session: Annotated[AsyncSession, db_session],
+        user_repo: Annotated[UserCrudRepo, Depends()],
 ) -> None:
     return await user_repo.delete_user(user_id=user_id, session=session)

@@ -52,7 +52,7 @@ async def get_current_user_from_token(
         payload: dict,
         session: AsyncSession,
 ) -> User:
-    username = payload.get("username")
+    username = payload.get("sub")
     if username:
         statement = select(User).where(User.username == username)
         result: Result = await session.execute(statement)

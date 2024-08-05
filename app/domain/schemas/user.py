@@ -31,6 +31,9 @@ class User(UserBase):
     is_blocked: bool
     is_active: bool
 
+    class Config:
+        from_attributes = True
+
 
 class CurrentUser(UserBase):
     iat: datetime = None

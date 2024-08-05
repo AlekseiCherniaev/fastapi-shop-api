@@ -1,6 +1,5 @@
 from fastapi import Depends, Form
 from fastapi.security import OAuth2PasswordBearer, HTTPBearer
-from jwt import InvalidTokenError
 from sqlalchemy import select, Result
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.elements import or_
@@ -10,7 +9,6 @@ from app.config.exceptions import InvalidTokenException, UserNotFoundException, 
 from app.dependencies.db import db_session
 from app.dependencies.utils import decode_jwt, TOKEN_TYPE_FIELD, ACCESS_TOKEN_TYPE, REFRESH_TOKEN_TYPE, \
     validate_password
-from app.config.logger import logger
 from app.domain.models import User, Role
 
 oauth2_scheme = OAuth2PasswordBearer(
@@ -20,32 +18,18 @@ http_bearer = HTTPBearer(auto_error=False)
 
 
 def get_current_token_payload(token: str = Depends(oauth2_scheme)) -> dict:
-    try:
-        return decode_jwt(token=token)
-
-    except InvalidTokenError as e:
-        logger.error(f"Invalid Token error: {str(e)}")
-        raise e
-    except Exception as e:
-        logger.error(f"Error getting current token payload: {str(e)}")
+    return decode_jwt(token=token)
 
 
 def validate_token_type(
         payload: dict,
         token_type: str,
 ) -> bool:
-    try:
-        current_token_type = payload.get(TOKEN_TYPE_FIELD)
-        if current_token_type == token_type:
-            return True
-        else:
-            raise InvalidTokenException
-
-    except InvalidTokenException as e:
-        logger.error(f"Invalid token type: {str(e)}")
-        raise e
-    except Exception as e:
-        logger.error(f"Exception in validating token type: {str(e)}")
+    current_token_type = payload.get(TOKEN_TYPE_FIELD)
+    if current_token_type == token_type:
+        return True
+    else:
+        raise InvalidTokenException
 
 
 async def get_current_user_from_token(
@@ -92,32 +76,19 @@ async def validate_auth_user(
         password: str = Form(),
         session: AsyncSession = db_session,
 ) -> User:
-    try:
-        statement = select(User).where(or_(User.username == username, User.email == username))
-        result: Result = await session.execute(statement)
-        user = result.scalar_one_or_none()
+    statement = select(User).where(or_(User.username == username, User.email == username))
+    result: Result = await session.execute(statement)
+    user = result.scalar_one_or_none()
 
-        if not user:
-            raise UserNotFoundException
+    if not user:
+        raise UserNotFoundException
 
-        if not validate_password(
-                password_to_validate=password,
-                hashed_password=user.password,
-        ):
-            raise WrongPasswordException
+    if not validate_password(
+            password_to_validate=password,
+            hashed_password=user.password,
+    ):
+        raise WrongPasswordException
 
-        if user.is_blocked:
-            raise UserBlockedException
-        return user
-
-    except WrongPasswordException as e:
-        logger.error(f"Wrong password: {str(e)}")
-        raise e
-    except UserNotFoundException as e:
-        logger.error(f"User not found: {str(e)}")
-        raise e
-    except UserBlockedException as e:
-        logger.error(f"User blocked: {str(e)}")
-        raise e
-    except Exception as e:
-        logger.error(f"Exception in validating user: {str(e)}")
+    if user.is_blocked:
+        raise UserBlockedException
+    return user

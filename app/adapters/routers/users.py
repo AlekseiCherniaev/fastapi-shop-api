@@ -8,7 +8,7 @@ from app.dependencies.db import db_session
 from app.domain.schemas.user import User, UserCreate, UserUpdatePartial
 from app.repositories.user_crud_repo import UserCrudRepo
 
-router = APIRouter(tags=["users"], prefix="/internal/users")
+router = APIRouter(tags=["/internal/users"], prefix="/internal/users")
 
 
 @router.get("/")
@@ -52,5 +52,5 @@ async def delete_user(
         user_id: UUID,
         session: Annotated[AsyncSession, db_session],
         user_repo: Annotated[UserCrudRepo, Depends()],
-) -> None:
+) -> dict:
     return await user_repo.delete_user(user_id=user_id, session=session)

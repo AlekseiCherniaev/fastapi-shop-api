@@ -6,8 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.dependencies.auth_dependencies import validate_auth_user, get_current_auth_user, get_current_token_payload, \
     get_current_auth_user_for_refresh, http_bearer
 from app.dependencies.db import db_session
-from app.domain.schemas.token import Token
-from app.domain.schemas.user import User, UserCreate, UserUpdatePartial, CurrentUser
+from app.domain.schemas.user import User, UserCreate, UserUpdatePartial, CurrentUser, Token, CurrentUserUpdate
 from app.repositories.auth_repo import AuthRepo
 from app.repositories.user_crud_repo import UserCrudRepo
 
@@ -63,7 +62,7 @@ async def update_me(
         payload: Annotated[dict, Depends(get_current_token_payload)],
         session: Annotated[AsyncSession, db_session],
         auth_repo: Annotated[AuthRepo, Depends()],
-) -> User:
+) -> CurrentUserUpdate:
     return await auth_repo.update_current_user(payload=payload, user_update=user_update, session=session)
 
 
@@ -72,5 +71,5 @@ async def delete_me(
         payload: Annotated[dict, Depends(get_current_token_payload)],
         session: Annotated[AsyncSession, db_session],
         auth_repo: Annotated[AuthRepo, Depends()],
-) -> None:
+) -> dict:
     return await auth_repo.delete_current_user(payload=payload, session=session)

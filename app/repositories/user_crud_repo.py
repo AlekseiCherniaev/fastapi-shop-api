@@ -23,5 +23,5 @@ class UserCrudRepo(BaseUserCrudRepo):
                                   session: AsyncSession) -> User:
         return await self.user_use_cases.update_partial_user(user_id=user_id, user_update=user_update, session=session)
 
-    async def delete_user(self, user_id: uuid.UUID, session: AsyncSession) -> None:
+    async def delete_user(self, user_id: uuid.UUID, session: AsyncSession) -> dict:
         return await self.user_use_cases.delete_user(user_id=user_id, session=session)

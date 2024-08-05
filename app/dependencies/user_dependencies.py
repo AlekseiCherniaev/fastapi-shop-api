@@ -4,14 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.config.exceptions import UserAlreadyExistsException, PasswordNotValidException
 from app.dependencies.utils import password_check_complexity, hash_password
 from app.domain.models import User
-from app.domain.schemas.user import UserUpdatePartial
+from app.domain.schemas.user import UserUpdatePartial, User as UserSchema
 
 
 async def user_update_partial(
         user_update: UserUpdatePartial,
         session: AsyncSession,
         user: User,
-):
+) -> UserSchema:
     if user_update.username and user_update.username != user.username:
         statement = select(User).where(User.username == user_update.username)
         check_user = (await session.execute(statement)).scalar_one_or_none()

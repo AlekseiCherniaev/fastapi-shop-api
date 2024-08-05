@@ -1,8 +1,7 @@
 from abc import ABC, abstractmethod
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import Response
-from app.domain.schemas.token import Token
-from app.domain.schemas.user import User, UserUpdatePartial, CurrentUser
+from app.domain.schemas.user import User, UserUpdatePartial, CurrentUser, Token, CurrentUserUpdate
 
 
 class BaseAuthRepo(ABC):
@@ -28,9 +27,10 @@ class BaseAuthRepo(ABC):
         ...
 
     @abstractmethod
-    async def update_current_user(self, payload: dict, user_update: UserUpdatePartial, session: AsyncSession) -> User:
+    async def update_current_user(self, payload: dict, user_update: UserUpdatePartial,
+                                  session: AsyncSession) -> CurrentUserUpdate:
         ...
 
     @abstractmethod
-    async def delete_current_user(self, payload: dict, session: AsyncSession) -> None:
+    async def delete_current_user(self, payload: dict, session: AsyncSession) -> dict:
         ...

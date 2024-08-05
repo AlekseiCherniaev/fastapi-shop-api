@@ -25,5 +25,5 @@ class BaseUserCrudRepo(ABC):
         ...
 
     @abstractmethod
-    async def delete_user(self, user_id: uuid.UUID, session: AsyncSession) -> None:
+    async def delete_user(self, user_id: uuid.UUID, session: AsyncSession) -> dict:
         ...

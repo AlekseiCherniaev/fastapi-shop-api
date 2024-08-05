@@ -8,8 +8,7 @@ load_dotenv()
 
 
 class Settings(BaseSettings):
-    db_echo: bool = False
-    # db_echo: bool = True
+    DB_ECHO: bool = False
     POSTGRES_HOST: str
     POSTGRES_PORT: int
     POSTGRES_DB: str
@@ -17,11 +16,10 @@ class Settings(BaseSettings):
     POSTGRES_PASSWORD: str
 
     ALGORITHM: str = "RS256"
-
-    public_key_path: Path = BASE_DIR / "certs" / "jwt-public.pem"
-    private_key_path: Path = BASE_DIR / "certs" / "jwt-private.pem"
-    access_token_expire_minutes: int = 5
-    refresh_token_expire_days: int = 30
+    PUBLIC_KEY_PATH: Path = BASE_DIR / "certs" / "jwt-public.pem"
+    PRIVATE_KEY_PATH: Path = BASE_DIR / "certs" / "jwt-private.pem"
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 5
+    REFRESH_TOKEN_EXPIRE_DAYS: int = 30
 
     def get_db_url(self):
         return f"postgresql+asyncpg://{self.POSTGRES_USER}:{self.POSTGRES_PASSWORD}@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}/{self.POSTGRES_DB}"

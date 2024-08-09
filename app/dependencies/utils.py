@@ -2,11 +2,14 @@ import re
 import uuid
 import jwt
 import bcrypt
+from sqlalchemy import select, desc, Select
 
 from app.config.config import settings
 from datetime import timedelta, datetime
 
+from app.config.exceptions import InvalidTokenException
 from app.domain.models import User
+from app.domain.schemas.pagination_info import PaginationInfo, Order, Models
 
 
 def password_check_complexity(password: str) -> bool:
@@ -62,11 +65,14 @@ def decode_jwt(
         public_key: str = settings.PUBLIC_KEY_PATH.read_text(),
         algorithm: str = settings.ALGORITHM,
 ) -> dict:
-    return jwt.decode(
-        token,
-        public_key,
-        algorithms=[algorithm],
-    )
+    try:
+        return jwt.decode(
+            token,
+            public_key,
+            algorithms=[algorithm],
+        )
+    except Exception as e:
+        raise InvalidTokenException
 
 
 def create_jwt(
@@ -106,3 +112,15 @@ def create_refresh_token(user: User) -> str:
         token_data=jwt_payload,
         expire_timedelta=timedelta(days=settings.REFRESH_TOKEN_EXPIRE_DAYS),
     )
+
+
+def make_statement(pagination: PaginationInfo, model) -> Select:
+    statement = select(model)
+    statement = (
+        statement.offset(offset=(pagination.page - 1) * pagination.limit).limit(limit=pagination.limit)
+        if pagination.filter_by_name is None
+        else statement.filter(model.name == pagination.filter_by_name).limit(limit=pagination.limit)
+    )
+    statement = statement.order_by(pagination.sort_by) if pagination.order_by is Order.ASC else statement.order_by(
+        desc(pagination.sort_by))
+    return statement

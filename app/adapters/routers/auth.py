@@ -1,14 +1,14 @@
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, Response
+from fastapi import APIRouter, Depends, Response, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.dependencies.auth_dependencies import validate_auth_user, get_current_auth_user, get_current_token_payload, \
+from app.dependencies.auth import validate_auth_user, get_current_auth_user, get_current_token_payload, \
     get_current_auth_user_for_refresh, http_bearer
 from app.dependencies.db import db_session
 from app.domain.schemas.user import User, UserCreate, UserUpdatePartial, CurrentUser, Token, CurrentUserUpdate
 from app.repositories.auth_repo import AuthRepo
-from app.repositories.user_crud_repo import UserCrudRepo
+from app.repositories.user_crud_repo import UserRepo
 
 router = APIRouter(tags=["auth"], prefix="/auth", dependencies=[Depends(http_bearer)])
 
@@ -21,11 +21,11 @@ async def login(
     return await auth_repo.login_user(user=user)
 
 
-@router.post("/register/")
+@router.post("/register/", status_code=status.HTTP_201_CREATED)
 async def register(
         user_in: UserCreate,
         session: Annotated[AsyncSession, db_session],
-        user_repo: Annotated[UserCrudRepo, Depends()],
+        user_repo: Annotated[UserRepo, Depends()],
         auth_repo: Annotated[AuthRepo, Depends()],
 ) -> Token:
     return await auth_repo.signup_user(user=await user_repo.create_user(user_in=user_in, session=session))
@@ -58,8 +58,8 @@ async def current_user(
 
 @router.patch("/update-me/")
 async def update_me(
-        user_update: UserUpdatePartial,
         payload: Annotated[dict, Depends(get_current_token_payload)],
+        user_update: UserUpdatePartial,
         session: Annotated[AsyncSession, db_session],
         auth_repo: Annotated[AuthRepo, Depends()],
 ) -> CurrentUserUpdate:

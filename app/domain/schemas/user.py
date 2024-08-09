@@ -9,7 +9,10 @@ class UserBase(BaseModel):
     surname: str
     username: str
     email: EmailStr
-    image_path: str | None = Field(None, max_length=128)
+    image_path: str | None
+
+    class Config:
+        from_attributes = True
 
 
 class UserCreate(UserBase):
@@ -30,16 +33,12 @@ class User(UserBase):
     role_id: int
     is_blocked: bool
     is_active: bool
-
-    class Config:
-        from_attributes = True
+    created_at: datetime
+    modified_at: datetime = Field(default_factory=datetime.now)
 
 
 class CurrentUser(UserBase):
     iat: datetime = None
-
-    class Config:
-        from_attributes = True
 
 
 class Token(BaseModel):
@@ -48,6 +47,10 @@ class Token(BaseModel):
     token_type: str = "Bearer"
 
 
-class CurrentUserUpdate(BaseModel):
-    user: User
+class CurrentUserUpdate(UserBase):
     token: Token | None = None
+
+
+class UserUpdatePartialAdmin(UserUpdatePartial):
+    role_id: int | None = Field(None, ge=0)
+    is_blocked: bool | None = None

@@ -3,10 +3,10 @@ from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.config.exceptions import UserNotFoundException
-from app.dependencies.auth_dependencies import get_current_user_from_token
-from app.dependencies.user_dependencies import user_update_partial
+from app.dependencies.auth import get_current_user_from_token
+from app.dependencies.user import user_update_partial
 from app.dependencies.utils import create_access_token, create_refresh_token
-from app.domain.schemas.user import User, CurrentUser, UserUpdatePartial, Token, CurrentUserUpdate
+from app.domain.schemas.user import User, CurrentUser, UserUpdatePartial, Token, CurrentUserUpdate, UserBase
 
 
 class AuthUseCases:
@@ -18,7 +18,6 @@ class AuthUseCases:
         )
 
     async def signup_user(self, user: User) -> Token:
-
         return Token(
             access_token=create_access_token(user=user),
             refresh_token=create_refresh_token(user=user),
@@ -26,7 +25,6 @@ class AuthUseCases:
         )
 
     async def refresh_jwt(self, user: User) -> Token:
-
         return Token(
             access_token=create_access_token(user=user)
         )
@@ -41,12 +39,10 @@ class AuthUseCases:
         pass
 
     async def get_current_user(self, payload: dict, user: User) -> CurrentUser:
-
-        if user:
-            iat = payload.get("iat")
-            user_schema = CurrentUser.model_validate(user)
-            user_schema.iat = iat
-            return user_schema
+        iat = payload.get("iat")
+        user_schema = CurrentUser.model_validate(user)
+        user_schema.iat = iat
+        return user_schema
 
     async def update_current_user(self, payload: dict, user_update: UserUpdatePartial,
                                   session: AsyncSession) -> CurrentUserUpdate:
@@ -58,7 +54,9 @@ class AuthUseCases:
             refresh_token=create_refresh_token(user=user)
         ) if user_update.username and user_update.username != user.username else None
         user = await user_update_partial(user=user, user_update=user_update, session=session)
-        return CurrentUserUpdate(user=User.model_validate(user), token=token)
+        user_schema = CurrentUserUpdate.model_validate(user)
+        user_schema.token = token
+        return user_schema
 
     async def delete_current_user(self, payload: dict, session: AsyncSession) -> dict:
         user = await get_current_user_from_token(payload=payload, session=session)

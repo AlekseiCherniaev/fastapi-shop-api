@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.domain.models import User
 from app.domain.schemas.user import UserUpdatePartial, CurrentUser, Token, CurrentUserUpdate
 from app.repositories.base_auth import BaseAuthRepo
-from app.use_cases.auth_use_cases import AuthUseCases
+from app.use_cases.auth import AuthUseCases
 
 
 class AuthRepo(BaseAuthRepo):

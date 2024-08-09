@@ -41,7 +41,10 @@ async def get_current_user_from_token(
         statement = select(User).where(User.username == username)
         result: Result = await session.execute(statement)
         user = result.scalar_one_or_none()
-        return user
+        if user:
+            return user
+        else:
+            raise UserNotFoundException
     else:
         raise InvalidTokenException
 

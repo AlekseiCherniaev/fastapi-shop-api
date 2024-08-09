@@ -22,6 +22,6 @@ class User(Base):
     role_id: Mapped[int] = mapped_column(ForeignKey("roles.id"), nullable=False)
     image_path: Mapped[str] = mapped_column(String(128), nullable=True)
     is_blocked: Mapped[bool] = mapped_column(default=False, server_default='False')
-    is_active: Mapped[bool] = mapped_column(default=True, server_default='True')
+    is_active: Mapped[bool] = mapped_column(default=False, server_default='False')
 
-    roles: Mapped['Role'] = relationship(back_populates="users")
+    roles: Mapped['Role'] = relationship(back_populates="users", lazy="selectin")

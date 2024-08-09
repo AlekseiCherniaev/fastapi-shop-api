@@ -8,7 +8,7 @@ from app.dependencies.auth import get_current_user_from_token, get_role_from_use
 from app.dependencies.user import get_user_by_id, user_update_partial
 from app.dependencies.utils import make_statement
 from app.domain.models import RoleEnum
-from app.domain.schemas.pagination_info import PaginationInfo, Models
+from app.domain.schemas.pagination_info import PaginationInfo
 from app.domain.schemas.user import UserUpdatePartialAdmin, User as UserSchema
 from app.domain.models.user import User
 

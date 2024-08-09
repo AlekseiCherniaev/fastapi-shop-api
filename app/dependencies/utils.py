@@ -9,7 +9,7 @@ from datetime import timedelta, datetime
 
 from app.config.exceptions import InvalidTokenException
 from app.domain.models import User
-from app.domain.schemas.pagination_info import PaginationInfo, Order, Models
+from app.domain.schemas.pagination_info import PaginationInfo, Order
 
 
 def password_check_complexity(password: str) -> bool:

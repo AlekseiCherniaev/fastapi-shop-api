@@ -121,6 +121,6 @@ def make_statement(pagination: PaginationInfo, model) -> Select:
         if pagination.filter_by_name is None
         else statement.filter(model.name == pagination.filter_by_name).limit(limit=pagination.limit)
     )
-    statement = statement.order_by(pagination.sort_by) if pagination.order_by is Order.ASC else statement.order_by(
-        desc(pagination.sort_by))
+    statement = statement.order_by(pagination.sort_by.value) if pagination.order_by is Order.ASC else statement.order_by(
+        desc(pagination.sort_by.value))
     return statement
